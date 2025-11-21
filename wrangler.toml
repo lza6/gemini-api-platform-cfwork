@@ -1,0 +1,22 @@
+# ===================================================================
+#  wrangler.toml (最终修正版 - 兼容 Cloudflare 免费套餐)
+# ===================================================================
+
+name = "gemini-api-platform" # 您的 Worker 名称
+main = "worker.js"          # 主程序文件名
+compatibility_date = "2024-05-20"
+
+# 1. Durable Object 绑定
+# 这部分是必需的，它告诉你的 Worker 代码 "GEMINI_SESSIONS" 这个名字
+# 对应的是一个名为 "GeminiSession" 的 Durable Object 类。
+[[durable_objects.bindings]]
+name = "GEMINI_SESSIONS"
+class_name = "GeminiSession"
+
+# 2. [关键修正] 迁移配置
+# 这部分告诉 Cloudflare 在部署时如何处理 Durable Object 的存储。
+# 我们使用 new_sqlite_classes 来指定为 "GeminiSession" 类创建
+# 一个基于 SQLite 的存储后端，这在免费套餐上是可用的。
+[[migrations]]
+tag = "v1" # 一个唯一的迁移标识符，每次更改存储结构时可以更新它
+new_sqlite_classes = ["GeminiSession"]
